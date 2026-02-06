@@ -45,6 +45,7 @@ export default function RandomStudent() {
   const [mode, setMode] = useState<'random' | 'size'>('random');
   const [groupCount, setGroupCount] = useState<number>(5);
   const [groupSize, setGroupSize] = useState<number>(3);
+  const [isStatus, setIsStatus] = useState<boolean>(false);
 
   // เลือกนักเรียนจาก id
   const getStudentsFromIds = (numbers: number[]): Student[] =>
@@ -133,7 +134,7 @@ export default function RandomStudent() {
   };
 
   return (
-    <div className="p-6 font-sans min-h-screen bg-gray-50">
+    <div className="p-6 font-sans min-h-screen bg-gray-50 text-black">
       <h2 className="text-2xl font-bold mb-6">📊 แบ่งกลุ่มนักเรียน</h2>
 
       <div className="flex flex-wrap gap-4 mb-4">
@@ -193,21 +194,26 @@ export default function RandomStudent() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {groups.map((group, idx) => (
-          <div key={idx} className="bg-white p-4 rounded shadow">
-            <h4 className="font-bold mb-2">
-              กลุ่ม {idx + 1} (พลังรวม{' '}
-              {group.reduce((sum, s) => sum + s.power, 0)})
-            </h4>
-            <ul>
-              {group.map((s) => (
-                <li key={s.id}>
-                  {s.id}. {s.name} ({s.power})
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        {groups.map((group, idx) => {
+          return (
+            <div key={idx} className="bg-white p-4 rounded shadow">
+              <h4 className="font-bold mb-2">กลุ่ม {idx + 1}</h4>
+              {isStatus ? (
+                <h4 className="font-bold mb-2">
+                  พลังรวม {group.reduce((sum, s) => sum + s.power, 0)}
+                </h4>
+              ) : null}
+
+              <ul>
+                {group.map((s) => (
+                  <li key={s.id}>
+                    {s.id}. {s.name} {isStatus ? `(${s.power}) ` : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
