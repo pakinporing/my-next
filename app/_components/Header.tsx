@@ -13,7 +13,8 @@ const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'payment-timer', href: '/test/payment-timer' },
   { label: 'scroll', href: '/test/scroll' },
-  { label: 'debounced-search', href: '/test/debounced-search' }
+  { label: 'debounced-search', href: '/test/debounced-search' },
+  { label: 'random-student', href: '/test/random-student' }
 ];
 
 export default function Header() {
