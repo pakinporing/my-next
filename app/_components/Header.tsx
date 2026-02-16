@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { redirect, usePathname } from 'next/navigation';
 import { signIn, useSession, signOut } from 'next-auth/react';
 import { logout } from '@/libs/action';
+import { useState } from 'react';
 
 type NavItem = {
   label: string;
@@ -21,6 +22,7 @@ const navItems: NavItem[] = [
 ];
 
 export default function Header() {
+  const [loading, setLoading] = useState(false);
   const pathname = usePathname();
   const { data: session, update } = useSession();
 
@@ -29,7 +31,7 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="font-bold text-lg">
-          pakinporing2
+          pakinporing
         </Link>
 
         {/* Nav */}
@@ -51,14 +53,25 @@ export default function Header() {
           })}
           <div>
             {session ? (
+              // <button
+              //   onClick={async () => {
+              //     await signOut({ redirect: false });
+              //     redirect('/');
+              //   }}
+              //   className="bg-red-600 text-white px-3 py-1 rounded"
+              // >
+              //   Logout
+              // </button>
               <button
+                className="bg-red-600 text-white px-3 py-1 rounded"
                 onClick={async () => {
+                  setLoading(true);
                   await signOut({ redirect: false });
                   redirect('/');
                 }}
-                className="bg-red-600 text-white px-3 py-1 rounded"
+                disabled={loading}
               >
-                Logout
+                {loading ? 'Logging out...' : 'Logout'}
               </button>
             ) : null}
           </div>
