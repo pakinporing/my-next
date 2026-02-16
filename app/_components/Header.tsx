@@ -2,7 +2,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
+import { signIn, useSession, signOut } from 'next-auth/react';
+import { logout } from '@/libs/action';
 
 type NavItem = {
   label: string;
@@ -15,10 +17,12 @@ const navItems: NavItem[] = [
   { label: 'scroll', href: '/test/scroll' },
   { label: 'debounced-search', href: '/test/debounced-search' },
   { label: 'random-student', href: '/test/random-student' }
+  // { label: 'learn/friend/create', href: '/learn/friend/create' }
 ];
 
 export default function Header() {
   const pathname = usePathname();
+  const { data: session, update } = useSession();
 
   return (
     <header className="w-full bg-gray-900 text-white shadow">
@@ -45,6 +49,19 @@ export default function Header() {
               </Link>
             );
           })}
+          <div>
+            {session ? (
+              <button
+                onClick={async () => {
+                  await signOut({ redirect: false });
+                  redirect('/');
+                }}
+                className="bg-red-600 text-white px-3 py-1 rounded"
+              >
+                Logout
+              </button>
+            ) : null}
+          </div>
         </nav>
       </div>
     </header>

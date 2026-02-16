@@ -1,3 +1,5 @@
-export default function Home() {
+import { cookies } from 'next/headers';
+
+export default async function Home() {
   return <>hello Jaaaa</>;
 }

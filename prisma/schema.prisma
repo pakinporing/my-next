@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../libs/db/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("users")
+}
+
+enum TodoStatus {
+  pending
+  completed
+}
+
+model Todo {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @map("user_id")
+  title     String
+  status    TodoStatus @default(pending)
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("todos")
+}
