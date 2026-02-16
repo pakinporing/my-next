@@ -6,6 +6,7 @@ import { redirect, usePathname } from 'next/navigation';
 import { signIn, useSession, signOut } from 'next-auth/react';
 import { logout } from '@/libs/action';
 import { useState } from 'react';
+import { useTransition } from 'react';
 
 type NavItem = {
   label: string;
@@ -22,16 +23,16 @@ const navItems: NavItem[] = [
 ];
 
 export default function Header() {
-  const [loading, setLoading] = useState(false);
   const pathname = usePathname();
   const { data: session, update } = useSession();
+  const [isPending, startTransition] = useTransition();
 
   return (
     <header className="w-full bg-gray-900 text-white shadow">
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="font-bold text-lg">
-          pakinporing
+          pakinporing 1
         </Link>
 
         {/* Nav */}
@@ -54,24 +55,27 @@ export default function Header() {
           <div>
             {session ? (
               // <button
+              //   className="bg-red-600 text-white px-3 py-1 rounded"
               //   onClick={async () => {
+              //     setLoading(true);
               //     await signOut({ redirect: false });
               //     redirect('/');
               //   }}
-              //   className="bg-red-600 text-white px-3 py-1 rounded"
+              //   disabled={loading}
               // >
-              //   Logout
+              //   {loading ? 'Logging out...' : 'Logout'}
               // </button>
+
               <button
-                className="bg-red-600 text-white px-3 py-1 rounded"
-                onClick={async () => {
-                  setLoading(true);
-                  await signOut({ redirect: false });
-                  redirect('/');
+                onClick={() => {
+                  startTransition(async () => {
+                    await signOut({ redirect: false });
+                    redirect('/');
+                  });
                 }}
-                disabled={loading}
+                disabled={isPending}
               >
-                {loading ? 'Logging out...' : 'Logout'}
+                {isPending ? 'Logging out...' : 'Logout'}
               </button>
             ) : null}
           </div>
