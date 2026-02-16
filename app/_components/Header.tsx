@@ -29,7 +29,7 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="font-bold text-lg">
-          pakinporing
+          pakinporing2
         </Link>
 
         {/* Nav */}
