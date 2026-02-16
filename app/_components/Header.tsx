@@ -67,6 +67,7 @@ export default function Header() {
               // </button>
 
               <button
+                className="bg-red-600 text-white px-3 py-1 rounded"
                 onClick={() => {
                   startTransition(async () => {
                     await signOut({ redirect: false });
