@@ -1,8 +1,8 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import GitHub from 'next-auth/providers/github';
-import Google from 'next-auth/providers/google';
-import VK from 'next-auth/providers/vk';
+// import GitHub from 'next-auth/providers/github';
+// import Google from 'next-auth/providers/google';
+// import VK from 'next-auth/providers/vk';
 import z from 'zod';
 
 const loginSchema = z.object({
@@ -32,10 +32,10 @@ export const { handlers, signIn, auth, signOut } = NextAuth({
           name: 'pakin'
         };
       }
-    }),
-    Google,
-    GitHub,
-    VK
+    })
+    // Google,
+    // GitHub,
+    // VK
   ],
   callbacks: {
     jwt({ token, user, trigger }) {
@@ -56,7 +56,8 @@ export const { handlers, signIn, auth, signOut } = NextAuth({
       session.user.role = token.role;
       return session;
     }
-  }
+  },
+  trustHost: true
 });
 
 // User
