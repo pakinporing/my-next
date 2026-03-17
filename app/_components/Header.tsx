@@ -3,9 +3,7 @@
 
 import Link from 'next/link';
 import { redirect, usePathname } from 'next/navigation';
-import { signIn, useSession, signOut } from 'next-auth/react';
-import { logout } from '@/libs/action';
-import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import { useTransition } from 'react';
 
 type NavItem = {
@@ -15,6 +13,8 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
+  { label: 'profile', href: '/profile' },
+  { label: 'chat', href: '/chat' },
   { label: 'payment-timer', href: '/test/payment-timer' },
   { label: 'scroll', href: '/test/scroll' },
   { label: 'debounced-search', href: '/test/debounced-search' },
@@ -24,7 +24,7 @@ const navItems: NavItem[] = [
 
 export default function Header() {
   const pathname = usePathname();
-  const { data: session, update } = useSession();
+  const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
 
   return (
@@ -32,7 +32,7 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="font-bold text-lg">
-          pakinporing 1
+          pakinporing
         </Link>
 
         {/* Nav */}
@@ -54,18 +54,6 @@ export default function Header() {
           })}
           <div>
             {session ? (
-              // <button
-              //   className="bg-red-600 text-white px-3 py-1 rounded"
-              //   onClick={async () => {
-              //     setLoading(true);
-              //     await signOut({ redirect: false });
-              //     redirect('/');
-              //   }}
-              //   disabled={loading}
-              // >
-              //   {loading ? 'Logging out...' : 'Logout'}
-              // </button>
-
               <button
                 className="bg-red-600 text-white px-3 py-1 rounded"
                 onClick={() => {

@@ -6,11 +6,5 @@ export default async function RandomStudentLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  console.log('session server student', session);
-
-  if (!session) {
-    redirect('/login');
-  }
   return <>{children}</>;
 }

@@ -2,11 +2,13 @@
 
 // import { login } from '@/libs/action';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
 
 import { useForm } from 'react-hook-form';
 import z from 'zod';
-import { signIn, useSession } from 'next-auth/react';
-import { redirect, useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+import PendingWaveDots from '@/app/_components/PendingWaveDots';
 
 export const loginSchema = z.object({
   email: z.string().email('Invalid email'),
@@ -43,76 +45,82 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-center mb-6">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#dcfce7_0%,_#dbeafe_40%,_#fee2e2_100%)] px-4 py-10">
+      <div className="mx-auto max-w-md rounded-3xl border border-white/70 bg-white/85 p-8 shadow-[0_20px_80px_rgba(15,23,42,0.18)] backdrop-blur">
+        <p className="mb-2 inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">
+          Welcome Back
+        </p>
+        <h1 className="text-3xl font-black tracking-tight text-slate-900">
           Sign in to your account
         </h1>
+        <p className="mt-2 text-sm text-slate-600">
+          Continue to your dashboard and secure features.
+        </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            alert('SUBMIT WORK');
-            console.log('SUBMIT WORK');
-          }}
-          className="space-y-5"
-        > */}
-          {/* Email */}
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-7 space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">
+              Email
+            </label>
             <input
               type="email"
               placeholder="you@example.com"
               {...register('email')}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 
-              ${
+              className={`w-full rounded-xl border bg-white px-4 py-3 text-slate-900 outline-none transition ${
                 errors.email
-                  ? 'border-red-500 focus:ring-red-300'
-                  : 'border-gray-300 focus:ring-blue-300'
+                  ? 'border-rose-400 focus:ring-2 focus:ring-rose-300'
+                  : 'border-slate-200 focus:ring-2 focus:ring-indigo-300'
               }`}
             />
-            {errors.email && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.email.message}
-              </p>
-            )}
+            {errors.email ? (
+              <p className="mt-1 text-sm text-rose-600">{errors.email.message}</p>
+            ) : null}
           </div>
 
-          {/* Password */}
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <div className="mb-1 flex items-center justify-between">
+              <label className="block text-sm font-semibold text-slate-700">
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-semibold text-indigo-700 hover:text-indigo-500"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               placeholder="••••••••"
               {...register('password')}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 
-              ${
+              className={`w-full rounded-xl border bg-white px-4 py-3 text-slate-900 outline-none transition ${
                 errors.password
-                  ? 'border-red-500 focus:ring-red-300'
-                  : 'border-gray-300 focus:ring-blue-300'
+                  ? 'border-rose-400 focus:ring-2 focus:ring-rose-300'
+                  : 'border-slate-200 focus:ring-2 focus:ring-indigo-300'
               }`}
             />
-            {errors.password && (
-              <p className="text-sm text-red-600 mt-1">
+            {errors.password ? (
+              <p className="mt-1 text-sm text-rose-600">
                 {errors.password.message}
               </p>
-            )}
+            ) : null}
           </div>
 
-          {/* Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-2 rounded-lg bg-blue-600 text-white font-semibold
-              hover:bg-blue-700 transition disabled:opacity-50"
+            className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700 disabled:opacity-60"
           >
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
+            {isSubmitting ? <PendingWaveDots label="Signing in" /> : 'Sign In'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">© 2026 My App</p>
+        <div className="mt-6 text-center text-sm text-slate-600">
+          <Link href="/register" className="font-semibold text-indigo-700">
+            Create a new account
+          </Link>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

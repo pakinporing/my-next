@@ -1,96 +1,127 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-// import GitHub from 'next-auth/providers/github';
-// import Google from 'next-auth/providers/google';
-// import VK from 'next-auth/providers/vk';
 import z from 'zod';
+import { requestLogin, requestLogout, requestRefresh } from '@/libs/api/auth';
 
 const loginSchema = z.object({
-  email: z.email(),
+  email: z.string().email(),
   password: z.string().min(1)
 });
 
 export const { handlers, signIn, auth, signOut } = NextAuth({
   providers: [
     Credentials({
-      authorize(input) {
-        console.log(input);
-        // validate
-        const data = loginSchema.parse(input);
-        // assume user => a@mail.com, password => 123456
-        // const user = await prisma.user.findUnique({ where: email: data.email })
-        // if (!user) return null
-        if (data.email !== 'pakinpor@gmail.com') return null;
-        // const isMatch = await bcrypt.compare(data.password, user.password)
-        if (data.password !== 'ppp') return null;
-        // throw error or return null ==> login failed
-        // return User type { id?: string; email?:string, image?:string, name?:string } ===> success
-        return {
-          email: data.email,
-          role: 'admin',
-          image: 'imagesssss',
-          name: 'pakin'
-        };
+      async authorize(input) {
+        const parsed = loginSchema.safeParse(input);
+        if (!parsed.success) return null;
+
+        try {
+          const {
+            user,
+            accessToken,
+            expiresIn,
+            refreshToken,
+            refreshExpiresIn
+          } = await requestLogin(parsed.data.email, parsed.data.password);
+          return {
+            id: user.id,
+            email: user.email,
+            role: 'user',
+            image: user.avatarUrl,
+            name: `${user.firstName} ${user.lastName}`.trim(),
+            accessToken: accessToken,
+            accessTokenExpiresAt: Date.now() + expiresIn * 1000,
+            refreshToken,
+            refreshTokenExpiresAt: Date.now() + refreshExpiresIn * 1000
+          };
+        } catch {
+          return null;
+        }
       }
     })
-    // Google,
-    // GitHub,
-    // VK
   ],
   callbacks: {
-    jwt({ token, user, trigger }) {
-      // this callback run when
-      // 1. login success (trigger = 'signIn') (user = return from authorized)
-      // 2. when auth is called (await auth()), api/auth/session (trigger = undefined) (user = undefined)
-      console.log('jwt callback token:', token);
-      console.log('jwt callback user:', user);
-      console.log('jwt callback trigger:', trigger);
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = user.role;
+        token.accessToken = user.accessToken;
+        token.userId = user.id;
+        token.userImage = user.image ?? null;
+        token.userName = user.name ?? null;
+        token.accessTokenExpiresAt = user.accessTokenExpiresAt ?? null;
+        token.refreshToken = user.refreshToken ?? null;
+        token.refreshTokenExpiresAt = user.refreshTokenExpiresAt ?? null;
+        token.refreshError = null;
+      }
+
+      if (trigger === 'update' && session?.user) {
+        if ('image' in session.user) {
+          token.userImage = session.user.image ?? null;
+        }
+        if ('name' in session.user) {
+          token.userName = session.user.name ?? null;
+        }
+      }
+
+      if (!token.refreshToken) {
+        token.refreshError = 'No refresh token available';
+        return token;
+      }
+      console.log('one');
+      if (token.accessToken && token.accessTokenExpiresAt) {
+        const now = Date.now();
+        console.log(
+          'first',
+          new Date(now),
+          new Date(token.accessTokenExpiresAt)
+        );
+        console.log('two', now, token.accessTokenExpiresAt);
+        if (Date.now() < token.accessTokenExpiresAt) {
+          return token;
+        }
+
+        try {
+          const { accessToken, expiresIn, refreshToken, refreshExpiresIn } =
+            await requestRefresh(token.refreshToken);
+
+          token.accessToken = accessToken;
+          token.accessTokenExpiresAt = Date.now() + expiresIn * 1000;
+
+          if (refreshToken) {
+            token.refreshToken = refreshToken;
+          }
+
+          if (refreshExpiresIn) {
+            token.refreshTokenExpiresAt = Date.now() + refreshExpiresIn * 1000;
+          }
+
+          token.refreshError = null;
+        } catch (err) {
+          token.refreshError = 'Failed to refresh access token';
+        }
       }
 
       return token;
     },
     session({ token, session }) {
-      console.log('session callback token:', token);
       session.user.role = token.role;
+      if (token.userId) {
+        session.user.id = token.userId;
+      }
+      if (token.accessToken) {
+        session.accessToken = token.accessToken;
+      }
+
+      session.refreshError = token.refreshError ?? null;
+      if ('image' in session.user) {
+        session.user.image = token.userImage ?? session.user.image ?? null;
+      }
+      if ('name' in session.user) {
+        session.user.name = token.userName ?? session.user.name ?? null;
+      }
       return session;
     }
   },
+
   trustHost: true
 });
-
-// User
-// export interface DefaultUser {
-//   id?: string
-//   name?: string | null
-//   email?: string | null
-//   image?: string | null
-// }
-
-// AdapterUser
-// export interface AdapterUser extends User {
-//   /** A unique identifier for the user. */
-//   id: string
-//   /** The user's email address. */
-//   email: string
-//   /**
-//    * Whether the user has verified their email address via an [Email provider](https://authjs.dev/getting-started/authentication/email).
-//    * It is `null` if the user has not signed in with the Email provider yet, or the date of the first successful signin.
-//    */
-//   emailVerified: Date | null
-// }
-
-// JWT
-// export interface JWT extends Record<string, unknown>, DefaultJWT {}
-
-//
-// export interface DefaultJWT extends Record<string, unknown> {
-//   name?: string | null
-//   email?: string | null
-//   picture?: string | null
-//   sub?: string
-//   iat?: number
-//   exp?: number
-//   jti?: string
-// }

@@ -1,5 +1,6 @@
 'use client';
 
+import Button from '@/app/_components/Button';
 import { useState } from 'react';
 
 type Student = {
@@ -215,6 +216,7 @@ export default function RandomStudent() {
           );
         })}
       </div>
+      <Button />
     </div>
   );
 }
